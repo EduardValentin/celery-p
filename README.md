@@ -1,1 +1,1 @@
-Just a POC
+Celery + RabbitMQ + MySQL backend
