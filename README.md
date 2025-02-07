@@ -1,1 +1,2 @@
-Just a POC
+Celery + SQS
+
