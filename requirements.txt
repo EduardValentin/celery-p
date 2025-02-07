@@ -1,4 +1,8 @@
 celery
 celery[sqlalchemy]
+celery[sqs]
 pymysql
 cryptography
+botocore
+boto3
+pycurl

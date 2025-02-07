@@ -4,13 +4,32 @@ from kombu.utils.functional import random
 from celery.result import AsyncResult
 from celery.signals import task_revoked,after_task_publish
 
-app = Celery(
-    "tasks",
-    broker="amqp://user:password@localhost:5672//",
-    backend="db+mysql+pymysql://celery_user:celery_password@localhost/celery_db"
+aws_access_key = ""
+aws_secret_key = ""
+
+broker_url = f"sqs://{aws_access_key}:{aws_secret_key}@".format(
+    aws_access_key=aws_access_key, aws_secret_key=aws_secret_key,
 )
 
-app.conf.broker_connection_retry_on_startup = True
+app = Celery(
+    "tasks",
+    broker=broker_url,
+    backend="db+mysql+pymysql://celery_user:celery_password@localhost/celery_db",
+    broker_transport_options = {
+        'polling_interval': 1,
+        'visibility_timeout': 60 * 3,
+        'predefined_queues': {
+            'celery': {
+                'region': 'eu-central-1',
+                'url': 'https://sqs.eu-central-1.amazonaws.com/646721517538/celery',
+                'access_key_id': aws_access_key,
+                'secret_access_key': aws_secret_key,
+            },
+        },
+    },
+    task_create_missing_queues=False,
+    broker_connection_retry_on_startup = True
+)
 
 @app.task
 def add(x, y):
@@ -86,7 +105,10 @@ def get_all_celery_tasks():
 def revoke_all_tasks():
     inspect = app.control.inspect()
 
+    print("Inspecting")
     active_tasks = inspect.active()
+    print("Active:" + active_tasks)
+
     scheduled_tasks = inspect.scheduled()  
     reserved_tasks = inspect.reserved()  
 
@@ -105,6 +127,7 @@ def revoke_all_tasks():
                     print(f"Revoking task ID: {task_id} (Worker: {worker})")
                     result = AsyncResult(task_id, app=app)
 
-                    result.revoke(terminate=False)  # Set terminate=True for hard termination
+                    result.revoke(terminate=True)  # Set terminate=True for hard termination
+
         else:
             print(f"No {state} tasks found.")

@@ -1,17 +1,18 @@
 services:
-  rabbitmq:
-    image: rabbitmq:4-management
-    hostname: rabbitmq
-    ports:
-      - "5672:5672"  # AMQP
-      - "15672:15672" # Management UI
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-      - rabbitmq_log:/var/log/rabbitmq
-
+  #
+  # rabbitmq:
+  #   image: rabbitmq:4-management
+  #   hostname: rabbitmq
+  #   ports:
+  #     - "5672:5672"  # AMQP
+  #     - "15672:15672" # Management UI
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: user
+  #     RABBITMQ_DEFAULT_PASS: password
+  #   volumes:
+  #     - rabbitmq_data:/var/lib/rabbitmq
+  #     - rabbitmq_log:/var/log/rabbitmq
+  #
   mysql:
     image: mysql:8
     restart: always
@@ -26,6 +27,6 @@ services:
       - mysql_data:/var/lib/mysql
 
 volumes:
-  rabbitmq_data:
-  rabbitmq_log:
+  # rabbitmq_data:
+  # rabbitmq_log:
   mysql_data:
