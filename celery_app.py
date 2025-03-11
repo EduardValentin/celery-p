@@ -82,30 +82,3 @@ def get_all_celery_tasks():
                     print(f"  Traceback: {result.traceback if result.state == 'FAILURE' else 'N/A'}")
         else:
             print(f"No {state} tasks found.")
-
-
-def revoke_all_tasks():
-    inspect = app.control.inspect()
-
-    active_tasks = inspect.active()
-    scheduled_tasks = inspect.scheduled()  
-    reserved_tasks = inspect.reserved()  
-
-    tasks = {
-        'active': active_tasks,
-        'scheduled': scheduled_tasks,
-        'reserved': reserved_tasks
-    }
-
-    for state, task_list in tasks.items():
-        print(f"\n--- Revoke {state.capitalize()} Tasks ---")
-        if task_list:
-            for worker, tasks_in_worker in task_list.items():
-                for task in tasks_in_worker:
-                    task_id = task.get('id')
-                    print(f"Revoking task ID: {task_id} (Worker: {worker})")
-                    result = AsyncResult(task_id, app=app)
-
-                    result.revoke(terminate=False)  # Set terminate=True for hard termination
-        else:
-            print(f"No {state} tasks found.")
